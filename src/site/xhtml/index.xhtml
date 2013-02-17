@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2011, Everit Kft.
+
+    All rights reserved.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+    MA 02110-1301  USA
+
+-->
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+
+<html xmlns="http://www.w3.org/1999/xhtml" 
+  xml:lang="en" lang="en">
+	<body>
+		<h1>Overview</h1>
+		<p>Everit JPA Container picks up bundles that contain JPA Persistence Unit based on the OSGi
+		"127 JPA Service Specification". The solution is based on Apache Aries JPA Container however the service and
+		dependency loading is completely rewritten.</p>
+		<h2>Persistent bundle lifecycle</h2>
+		<p>The lifecycle of a persistent bundle managed by this container is the following:</p>
+		<ul>
+			<li>Bundle is picked up when the STARTED event runs on it (No weaving support)</li>
+			<li>After parsing the following requisites are determined on each persistence unit defined in the bundle
+				<ul>
+					<li>PersistenceProvider</li>
+					<li>DataSourceFactory if the database connection is defined inside the persistence.xml file</li>
+					<li>DataSource OSGi service if the database connection is defined as jta-data-source and/or non-jta-data-source
+					in the persistence.xml and "osgi:service/javax.sql.DataSource/(filter) expression is used.</li>
+					<li>JNDI name if simple non-service expression is used in any of the jta-data-source tags</li>
+					<li>TransactionManager OSGi service if JTA should be used for the persistence unit. JTA should be used if
+					jta-data-source is defined or the transaction-type is JTA. Currently JPA should work well only in JTA mode
+					as without it only autocommit true could work.</li>
+				</ul>
+			</li>
+			<li>The container waits until persistence provider is available for the bundle. When it is available the container waits for each defined requisite by each persistence unit defined in the bundle.</li>
+			<li>When all requisites (OSGi services) are available for a persistence unit it will be started.</li>
+			<li>When any of the requisites is not available anymore or the persistence bundle loses the ACTIVE state all of the Persistence Units will be unregistered.</li>
+		</ul>
+		<h2>Sample application</h2>
+		<p>There is a sample application based on Hibernate that uses this container at <a href="/osgi/samples/hibernate/index.html">http://everit.org/osgi/samples/hibernate/index.html</a></p>
+		<h2>Why not weaving?</h2>
+		<p>If we supported weaving and bytecode manipulation we would face a bunch of problems in OSGi:</p>
+		<ul>
+			<li>What if the persistent bundle starts before any of the requisites that it needs?</li>
+			<li>What if multiple applications share the same Entity classes and they use different Persistence Providers?</li>
+		</ul>
+		<p>We think that weaving and bytecode manipulation should be used only by profilers or by test coverage tools as Java Agents. Weaving and byte code manipulation during class loading hides important logic from
+		the developer and makes the lifecycle of an application mysterious. It is impossible to write real code inside OSGi that does not depend on bundle starting order if such techniques are used. People who want to
+		use OpenJPA may try compile time class enhancement (although that is not nice as well as it makes the code non-debuggable). We hope that programmers will soon forget class weaving and Annotation scanning and
+		no technologies support such methods.</p>
+	</body>
+</html>
