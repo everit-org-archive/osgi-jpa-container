@@ -27,7 +27,7 @@
 
     <parent>
         <groupId>org.everit</groupId>
-        <artifactId>main</artifactId>
+        <artifactId>oss</artifactId>
         <version>4</version>
     </parent>
 
