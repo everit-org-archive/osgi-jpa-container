@@ -33,7 +33,7 @@
 
     <groupId>org.everit.osgi.jpa</groupId>
     <artifactId>org.everit.osgi.jpa.container</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>bundle</packaging>
     <name>OSGi JPA Container</name>
     <description>JPA Container that tracks bundles with persistence content inside. This container waits for all services
@@ -75,6 +75,11 @@
                             javax.persistence.spi;version="[1.0.0,2.1.0)",
                             org.osgi.framework.hooks.weaving;resolution:=optional,
                             org.osgi.framework.wiring;resolution:=optional,
+                            org.apache.aries.quiesce.manager;resolution:=optional;version="[1.0,1.1)",
+                            org.apache.aries.quiesce.participant;resolution:=optional;version="[1.0,1.1)",
+                            org.osgi.framework.hooks.weaving;resolution:=optional;version="[1.0,2)",
+                            org.osgi.framework.wiring;resolution:=optional;version="[1.0,2)",
+                            org.osgi.service.jdbc;resolution:=optional;version="[1.0,2)",
                             *
                         </Import-Package>
                         <Embed-Dependency>
